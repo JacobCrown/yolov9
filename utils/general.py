@@ -12,7 +12,6 @@ import signal
 import sys
 import time
 import urllib
-from copy import deepcopy
 from datetime import datetime
 from itertools import repeat
 from multiprocessing.pool import ThreadPool

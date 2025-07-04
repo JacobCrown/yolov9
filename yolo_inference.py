@@ -1,6 +1,16 @@
 import torch
 import numpy as np
 from typing import List, Dict, Union
+import sys
+from pathlib import Path
+import os
+
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[0]  # YOLO root directory
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))  # add ROOT to PATH
+ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
+
 
 from models.common import DetectMultiBackend
 from utils.dataloaders import letterbox
