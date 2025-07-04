@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# Docker
+.dockerignore
+Dockerfile
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.env
+
+# Data and models
+data/
+output/
+weights/
+*.pt
+*.pth
+
+# Other
+.idea/
+.vscode/
+README.md 
