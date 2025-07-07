@@ -34,7 +34,6 @@ app = FastAPI(title="YOLOv9 Inference API")
 # Load model at startup using environment variables with defaults
 MODEL_WEIGHTS = os.environ.get("MODEL_WEIGHTS", "weights/best.pt")
 DEVICE = os.environ.get("DEVICE", "")  # Autodetect if not set
-breakpoint()
 
 print(f"Loading model with weights: {MODEL_WEIGHTS} on device: {DEVICE}")
 model_handler = ModelHandler(weights_path=MODEL_WEIGHTS, device=DEVICE)
