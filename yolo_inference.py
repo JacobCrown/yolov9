@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from typing import List, Dict, Union
+from typing import List, Dict, Tuple, Union, Optional
 import sys
 from pathlib import Path
 import os
@@ -27,7 +27,16 @@ class ModelHandler:
     names: Union[List[str], Dict[int, str]]
     pt: bool
 
-    def __init__(self, weights_path: str, device: str = "", imgsz=640):
+    def __init__(
+        self,
+        weights_path: str,
+        device: str = "cpu",
+        img_size: Union[int, Tuple[int, int]] = 640,
+        conf_thres: float = 0.5,
+        iou_thres: float = 0.45,
+        agnostic_nms: bool = True,
+        max_detections: int = 1000,
+    ):
         """
         Initializes the YOLOv9 model for inference.
 
@@ -36,6 +45,10 @@ class ModelHandler:
             device (str): Device to run inference on ('', 'cpu', '0', '1', etc.).
             imgsz (int): Inference image size.
         """
+        self.conf_thres = conf_thres
+        self.iou_thres = iou_thres
+        self.agnostic_nms = agnostic_nms
+        self.max_det = max_detections
         self.device = select_device(device)
         self.model = DetectMultiBackend(
             weights_path,
@@ -48,14 +61,21 @@ class ModelHandler:
             self.model.names,
             self.model.pt,
         )
-        self.imgsz = check_img_size(imgsz, s=self.stride)
+        self.imgsz = check_img_size(img_size, s=self.stride)
 
         # Warmup
         if self.device.type != "cpu":
             self.model.warmup(imgsz=(1, 3, self.imgsz, self.imgsz))
 
     @smart_inference_mode()
-    def predict(self, image: np.ndarray, conf_thres=0.25, iou_thres=0.45):
+    def predict(
+        self,
+        image: np.ndarray,
+        conf_thres: Optional[float] = None,
+        iou_thres: Optional[float] = None,
+        agnostic_nms: Optional[bool] = None,
+        max_detections: Optional[int] = None,
+    ):
         """
         Performs inference on a single image.
 
@@ -63,6 +83,8 @@ class ModelHandler:
             image (np.ndarray): The input image in BGR format.
             conf_thres (float): Confidence threshold for detections.
             iou_thres (float): IoU threshold for NMS.
+            agnostic_nms (bool): Whether to use agnostic NMS.
+            max_detections (int): Maximum number of detections.
 
         Returns:
             list: A list of detection results, where each result is a dictionary.
@@ -83,8 +105,14 @@ class ModelHandler:
 
         # NMS - For YOLO models with dual heads, select the primary prediction
         pred = pred[0][1]
+
         pred = non_max_suppression(
-            pred, conf_thres, iou_thres, classes=None, agnostic=True, max_det=1000
+            pred,
+            conf_thres=conf_thres or self.conf_thres,
+            iou_thres=iou_thres or self.iou_thres,
+            agnostic=agnostic_nms or self.agnostic_nms,
+            max_det=max_detections or self.max_det,
+            classes=None,
         )
 
         results = []
