@@ -84,7 +84,7 @@ class ModelHandler:
         # NMS - For YOLO models with dual heads, select the primary prediction
         pred = pred[0][1]
         pred = non_max_suppression(
-            pred, conf_thres, iou_thres, classes=None, agnostic=False, max_det=1000
+            pred, conf_thres, iou_thres, classes=None, agnostic=True, max_det=1000
         )
 
         results = []
